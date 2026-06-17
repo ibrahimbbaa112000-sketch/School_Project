@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student API Simple + Table</title>
+
+<style>
+    body {
+        font-family: Arial;
+        background: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        padding-top: 40px;
+    }
+
+    .box {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 420px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    input {
+        width: 100%;
+        margin: 5px 0;
+        padding: 8px;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 8px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    .add { background: green; }
+    .view { background: gray; }
+    .update { background: blue; }
+    .delete { background: red; }
+
+    pre {
+        background: #eee;
+        padding: 10px;
+        margin-top: 10px;
+        height: 100px;
+        overflow: auto;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 6px;
+        text-align: center;
+    }
+
+    th {
+        background: #333;
+        color: white;
+    }
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+```
+<h3>Student API</h3>
+
+<!-- INPUTS -->
+<input id="id" placeholder="ID (update/delete)">
+<input id="name" placeholder="Name">
+<input id="age" placeholder="Age">
+<input id="grade" placeholder="Grade">
+
+<!-- BUTTONS -->
+<button class="add" onclick="addStudent()">Add</button>
+<button class="view" onclick="getStudents()">Refresh Data</button>
+<button class="update" onclick="updateStudent()">Update</button>
+<button class="delete" onclick="deleteStudent()">Delete</button>
+
+<pre id="output"></pre>
+
+<!-- TABLE -->
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+</table>
+```
+
+</div>
+
+<script>
+
+const API = "/Students/";
+
+// LOAD TABLE
+async function getStudents() {
+    let res = await fetch(API);
+    let data = await res.json();
+
+    let table = document.getElementById("tableBody");
+    table.innerHTML = "";
+
+    data.forEach(row => {
+        let tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${row[0]}</td>
+            <td>${row[1]}</td>
+            <td>${row[2]}</td>
+            <td>${row[3]}</td>
+        `;
+
+        table.appendChild(tr);
+    });
+
+    document.getElementById("output").innerText = "Table updated ✔";
+}
+
+// ADD
+async function addStudent() {
+    let data = {
+        name: document.getElementById("name").value,
+        age: parseInt(document.getElementById("age").value),
+        grade: parseFloat(document.getElementById("grade").value)
+    };
+
+    await fetch(API, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    getStudents();
+}
+
+// UPDATE
+async function updateStudent() {
+    let id = document.getElementById("id").value;
+
+    let data = {
+        name: document.getElementById("name").value,
+        age: parseInt(document.getElementById("age").value),
+        grade: parseFloat(document.getElementById("grade").value)
+    };
+
+    await fetch(API + id, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+    getStudents();
+}
+
+// DELETE
+async function deleteStudent() {
+    let id = document.getElementById("id").value;
+
+    await fetch(API + id, {
+        method: "DELETE"
+    });
+
+    getStudents();
+}
+
+// auto load on start
+getStudents();
+
+</script>
+
+</body>
+</html>
